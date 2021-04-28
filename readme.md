@@ -15,23 +15,20 @@ Install from [GitHub](https://github.com/AlexDev-py/postgresql_api.git)
 Create table classes
 --------------------
 
-    from sqlite3_api.Table import Table
+    from postgresql_api.Table import Table
 
     class MyTable(Table):
         my_first_field: str
         my_second_field: int
 
-In file 
-[example/my_tables.py](https://github.com/AlexDev-py/sqlite3_api/blob/2.0.0/example/my_tables.py),
-there is an instruction to create classes(in Russian language)
 
 Using
-------------
+-----
 
 Initiate the database:
 
     from my_tables import MyTable 
-    my_table = MyTable('MyDataBase.sqlite')
+    my_table = MyTable(db_host="URL to db")
 
 Create tables:
 
@@ -54,6 +51,6 @@ Sorting data:
 
 
 More information in the 
-[example folder](https://github.com/AlexDev-py/sqlite3_api/tree/2.0.0/example)
+[example folder](https://github.com/AlexDev-py/postgresql_api/tree/master/examples)
 
 VK: [AlexDev](https://vk.com/sys.exit1)
