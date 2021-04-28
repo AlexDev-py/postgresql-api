@@ -1,4 +1,4 @@
-# PostgreSQL API [![Downloads](https://pepy.tech/badge/postgresql-api)](https://pepy.tech/project/postgresql-api) [![PyPi version](https://img.shields.io/pypi/v/postgresql-api.svg)](https://pypi.python.org/pypi/postgresql-api/) [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/AlexDev-py/postgresql_api/blob/2.0.0/LICENSE)
+# PostgreSQL API [![Downloads](https://pepy.tech/badge/postgresql-api)](https://pepy.tech/project/postgresql-api) [![PyPi version](https://img.shields.io/pypi/v/postgresql-api.svg)](https://pypi.python.org/pypi/postgresql-api/) [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/AlexDev-py/postgresql_api/blob/master/postgresql_api/LICENSE)
 
 Installation
 ------------
