@@ -1,0 +1,7 @@
+__pycache__/
+venv/
+venv38/
+.idea/
+dist/
+postgresql_api.egg-info/
+*.ini
