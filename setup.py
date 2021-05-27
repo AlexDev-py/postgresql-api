@@ -5,7 +5,7 @@ with open("README.rst") as rst:
 
 setup(
     name="postgresql-api",
-    version="2.0.0",
+    version="2.0.1",
     packages=["postgresql_api"],
     url="https://github.com/AlexDev-py/postgresql_api.git",
     license="MIT",
@@ -21,6 +21,6 @@ setup(
 )
 
 # sdist
-# twine register dist/postgresql-api-2.0.0.tar.gz
-# twine upload dist/postgresql-api-2.0.0.tar.gz
+# twine register dist/postgresql-api-2.0.1.tar.gz
+# twine upload dist/postgresql-api-2.0.1.tar.gz
 # -r testpypi
