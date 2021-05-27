@@ -1,1 +1,1 @@
-from .main import API
+from .Table import Table, API

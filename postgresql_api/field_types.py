@@ -1,6 +1,7 @@
 """
 
 Типы данных, которые можно хранить в базе данных.
+А так же инструменты для их создания.
 
 """
 
@@ -17,6 +18,10 @@ class FieldType:
     field_types = []  # Инициализированные типы данных.
 
     def __init_subclass__(cls, **kwargs):
+        """
+        Инициализируем тип данных.
+        """
+
         cls.field_types.append(cls)
 
     @classmethod
@@ -53,10 +58,10 @@ class Float(FieldType, float):
 class List(FieldType, list):
     @classmethod
     def converter(cls, obj: bytes) -> List:
-        return List(literal_eval(obj.decode("utf-8")))
+        return cls(literal_eval(obj.decode("utf-8")))
 
 
 class Dict(FieldType, dict):
     @classmethod
     def converter(cls, obj: bytes) -> Dict:
-        return Dict(literal_eval(obj.decode("utf-8")))
+        return cls(literal_eval(obj.decode("utf-8")))

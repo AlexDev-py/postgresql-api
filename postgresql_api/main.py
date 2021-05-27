@@ -1,4 +1,4 @@
-from typing import Dict, Any
+import typing as ty
 
 from psycopg2 import sql
 
@@ -18,7 +18,9 @@ OPT_MAP = {
 
 
 class PostgreSqlApiError(Exception):
-    """ Ошибки, которые возникают при работе API """
+    """
+    Ошибки, которые возникают при работе API.
+    """
 
 
 class API(PostgreSql):
@@ -40,7 +42,7 @@ class API(PostgreSql):
         self._check_active()
 
         if len(table_classes) == 0:
-            raise PostgreSqlApiError("Не переданы классы таблиц")
+            raise PostgreSqlApiError("Не переданы классы таблиц.")
 
         for obj in table_classes:
             self.execute(
@@ -65,7 +67,12 @@ class API(PostgreSql):
 
         return "Successfully"
 
-    def filter(self, table_name: str, table_fields: Dict[str, FieldType], **where):
+    def filter(
+        self,
+        table_name: str,
+        table_fields: ty.Dict[str, ty.Type[FieldType]],
+        **where: [str, ty.Any],
+    ):
         """
         Функция, выбирающая данные из таблицы на основе указанных параметров.
         :param table_name: Название таблицы, с которой мы работаем.
@@ -130,7 +137,7 @@ class API(PostgreSql):
             for obj in data
         ]
 
-    def insert(self, table_name: str, **fields) -> str:
+    def insert(self, table_name: str, **fields: ty.Dict[str, ty.Any]) -> str:
         """
         Функция, добавляющая данные в таблицу.
         :param table_name: Название таблицы, с которой мы работаем.
@@ -154,7 +161,11 @@ class API(PostgreSql):
         return "Successfully"
 
     def add_field(
-        self, table_name: str, field_name: str, field_type: FieldType, start_value: Any
+        self,
+        table_name: str,
+        field_name: str,
+        field_type: ty.Type[FieldType],
+        start_value: ty.Any,
     ) -> str:
         """
         Функция, добавляющая поле в таблицу.
@@ -184,7 +195,7 @@ class API(PostgreSql):
 
         return "Successfully"
 
-    def create_table(self, table_name: str, **fields) -> str:
+    def create_table(self, table_name: str, **fields: [str, ty.Type[FieldType]]) -> str:
         """
         Функция, создающая таблицу в базе данных.
         :param table_name: Название таблицы.
@@ -213,15 +224,13 @@ class API(PostgreSql):
 
     def _check_active(self):
         if not self._active:
-            raise PostgreSqlApiError("База данных не инициализирована")
+            raise PostgreSqlApiError("База данных не инициализирована.")
 
     @property
     def cursor(self):
-        """ PostgreSql cursor. """
-
-    @cursor.getter
-    def cursor(self):
-        """ Получение курсора. """
+        """
+        PostgreSql cursor.
+        """
 
         self._check_active()
         return self._cursor

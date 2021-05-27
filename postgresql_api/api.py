@@ -6,7 +6,9 @@ from psycopg2.sql import Composed
 
 
 class PostgreSqlApiOperationalError(sql.OperationalError):
-    """ Ошибки запросов. """
+    """
+    Ошибки запросов.
+    """
 
     def __init__(
         self,
@@ -33,14 +35,16 @@ class PostgreSql:
     def fetchall(self, request: Union[str, Composed], *args):
         """
         Функция, выполняющая запрос `request`
-        и возвращающая результат используя fetchall
+        и возвращающая результат используя fetchall.
         """
 
         self.execute(request, *args)
         return self._cursor.fetchall()
 
     def execute(self, request: Union[str, Composed], *args):
-        """ Функция, выполняющая запрос `request` """
+        """
+        Функция, выполняющая запрос `request`.
+        """
 
         try:
             self._cursor.execute(request, args)

@@ -6,21 +6,24 @@
 
 from __future__ import annotations
 
-from typing import Literal, get_type_hints, Dict, Any
+import typing as ty
+from re import fullmatch
 
 from .field_types import Text, Integer, Float, List, Dict, FieldType
 from .main import API, PostgreSqlApiError
 
 
 class Table(object):
-    """ Родительский класс для создания таблиц """
+    """
+    Родительский класс для создания таблиц
+    """
 
     id: int = None
 
-    def __init__(self, db_host: str = None, _api: API = None, **kwargs):
+    def __init__(self, db_host: str = None, _api: API = None, **kwargs: [str, ty.Any]):
         """
         :param db_host: URL к базе данных.
-        :param _api: PostgreSql Api
+        :param _api: PostgreSql Api.
         """
 
         self.__api = _api or API(db_host)
@@ -35,9 +38,9 @@ class Table(object):
 
         return self.__api.save(self)
 
-    def update(self, **fields) -> str:
+    def update(self, **fields: [str, ty.Any]) -> str:
         """
-        Функция, обновляющая значения полей и автоматически сохраняя изменения.
+        Функция, обновляющая значения полей и автоматически сохраняющая изменения.
         :param fields: {<название поля>: <значение>, ...}
         :return: "Successfully"
         """
@@ -47,9 +50,9 @@ class Table(object):
 
     def filter(
         self,
-        return_type: Literal["visual", "classes"] = "classes",
-        return_list: Literal[True, False] = False,
-        **where,
+        return_type: ty.Literal["visual", "classes"] = "classes",
+        return_list: ty.Literal[True, False] = False,
+        **where: [str, ty.Any],
     ):
         """
         Функция, выбирающая данные из таблицы на основе указанных параметров.
@@ -64,9 +67,7 @@ class Table(object):
         """
 
         if data := self.__api.filter(
-            table_name=self.table_name,
-            table_fields=self.get_fields(),
-            **where,
+            table_name=self.table_name, table_fields=self.get_fields(), **where
         ):
             if return_type == "visual":
                 if return_list:
@@ -83,7 +84,7 @@ class Table(object):
 
         return [] if return_list else None
 
-    def insert(self, **fields) -> str:
+    def insert(self, **fields: [str, ty.Any]) -> str:
         """
         Функция, добавляющая данные в таблицу.
         :param fields: {<название поля>: <значение>, ...}.
@@ -91,21 +92,21 @@ class Table(object):
         """
 
         table_fields = {
-            field: vars(self.__class__).get(field)
+            field: getattr(self.__class__, field)
             for field in self.get_fields()
-            if vars(self.__class__).get(field) is not None
+            if hasattr(self.__class__, field)
         }  # Получаем значения по умолчанию
         table_fields.update(**fields)
 
         if len(_fields := set(table_fields) - set(self.get_fields())):
             raise PostgreSqlApiError(
                 f"В таблице `{self.table_name}` не найдены поля: "
-                f'{", ".join(_fields)}'
+                f'{", ".join(_fields)}.'
             )
 
         if len(_fields := set(self.get_fields()) - set(table_fields)):
             raise PostgreSqlApiError(
-                f'Не переданы значения для полей: {", ".join(_fields)}'
+                f'Не переданы значения для полей: {", ".join(_fields)}.'
             )
 
         return self.__api.insert(
@@ -131,13 +132,13 @@ class Table(object):
         if not (field_type := self.get_fields().get(field_name)):
             raise PostgreSqlApiError(
                 f"Поле `{field_name}` не найдено "
-                f"в классе таблицы `{self.table_name}`"
+                f"в классе таблицы `{self.table_name}`."
             )
 
         if start_value is None:
             if (start_value := self.__class__.__dict__.get(field_name)) is None:
                 raise PostgreSqlApiError(
-                    f"Не указано значение по умолчанию для поля `{field_name}`"
+                    f"Не указано значение по умолчанию для поля `{field_name}`."
                 )
 
         return self.__api.add_field(
@@ -158,61 +159,70 @@ class Table(object):
         fields = dict(id=data[0], **dict(zip(self.get_fields(), data[1:])))
         return self.__class__(**fields, _api=self.__api)
 
-    def adapt_fields(self, fields: Dict[str, Any]):
+    def adapt_fields(self, fields: ty.Dict[str, ty.Any]):
         """
         Функция, конвертирующая значения,
-        для сохранения в базу данных, используя `adapter`
+        для сохранения в базу данных, используя `adapter`.
         """
 
-        fields_types: Dict[str, FieldType] = self.get_fields()
+        fields_types = self.get_fields()
         return {
             field_name: fields_types[field_name].adapter(value)
             for field_name, value in fields.items()
         }
 
-    def convert_fields(self, fields: Dict[str, Any]):
+    def convert_fields(self, fields: ty.Dict[str, ty.Any]):
         """
         Функция, конвертирующая значения,
         полученные из базы данных, в нужный тип данных.
         """
 
-        fields_types: Dict[str, FieldType] = self.get_fields()
+        fields_types = self.get_fields()
         return {
             field_name: fields_types[field_name].converter(value)
             for field_name, value in fields.items()
         }
 
     @classmethod
-    def get_fields(cls) -> Dict[str, FieldType]:
-        """ Функция, возвращающая поля и их типы данных. """
+    def get_fields(cls) -> ty.Dict[str, ty.Type[FieldType]]:
+        """
+        Функция, возвращающая поля и их типы данных.
+        """
 
         type_map = {str: Text, int: Integer, float: Float, dict: Dict, list: List}
-        fields = {}
-        for field_name, field_type in get_type_hints(cls).items():
-            if field_type not in type_map and field_type not in FieldType.field_types:
+        fields: ty.Dict[str, ty.Type[FieldType]] = {}
+        for field_name, field_type in ty.get_type_hints(cls).items():
+            if field_type not in set(*type_map.keys(), *FieldType.field_types):
                 raise PostgreSqlApiError(
                     f"Неподдерживаемый тип {field_type} "
-                    f"у поля `{field_name}` в таблице {cls.table_name}"
+                    f"у поля `{field_name}` в таблице {cls.table_name}."
                 )
-            field_type = type_map[field_type] if field_type in type_map else field_type
-            fields[field_name] = field_type
+            fields[field_name] = type_map.get(field_type) or field_type
         del fields["id"]
         return fields
 
     @property
     def table_name(self):
-        """ Название таблицы. """
-
-    @table_name.getter
-    def table_name(self) -> str:
-        """ Получение названия таблицы. """
+        """
+        Название таблицы.
+        """
 
         return type(self).__name__.lower()
+
+    @property
+    def api(self) -> API:
+        """
+        PostgreSql Api.
+        """
+
+        return self.__api
 
     def __repr__(self):
         return "{table_name} OBJECT\n{fields}".format(
             table_name=self.table_name.upper(),
             fields="\n".join(
-                f"{k}={v}" for k, v in vars(self).items() if not k.startswith("_Table_")
+                f"{k}={v}"
+                for k, v in vars(self).items()
+                if not fullmatch(r"_.+__.+", k)
             ),
         )
